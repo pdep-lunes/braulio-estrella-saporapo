@@ -2,33 +2,27 @@ module Lib () where
 
 import Text.Show.Functions ()
 
-data Personaje = unPersonaje {
+data Personaje = UnPersonaje {
     nombre :: String,
     poderBasico :: String,
     superPoder :: String,
     superPoderActivo :: Bool,
     cantidadVida :: Int,
     grupo :: String
-} 
+} deriving (Show)
 
-doble :: Int -> Int
-doble x = x * 2
+restarVida :: Int -> Int -> Int
+restarVida vidaContrincante danioGenerado
+    | danioGenerado >= vidaContrincante = 0
+    | otherwise = vidaContrincante - danioGenerado
+
+hacerDanio :: Personaje -> Int -> Personaje
+hacerDanio unContrincante danio = unContrincante { 
+    cantidadVida = restarVida (cantidadVida unContrincante) danio 
+}
 
 bolaEspinosa :: Personaje -> Personaje 
-bolaEspinosa unPersonaje
-    | cantidadVida unPersonaje <= 1000 = unPersonaje {
-                            nombre = nombre unPersonaje, 
-                            poderBasico = poderBasico unPersonaje,
-                            superPoder = superPoder unPersonaje,
-                            superPoderActivo = superPoderActivo unPersonaje,
-                            cantidadVida = 0,
-                            grupo = grupo unPersonaje
-                            }
-    | otherwise = unPersonaje {
-                            nombre = nombre unPersonaje, 
-                            poderBasico = poderBasico unPersonaje,
-                            superPoder = superPoder unPersonaje,
-                            superPoderActivo = superPoderActivo unPersonaje,
-                            cantidadVida = cantidadVida unPersonaje - 1000,
-                            grupo = grupo unPersonaje
-                            }
+bolaEspinosa unContrincante = hacerDanio unContrincante 1000
+
+espina :: Personaje
+espina = UnPersonaje "Espina" "bolaEspinosa" "granadaDeEspinas 5" True 4800 "Grupo 1"
