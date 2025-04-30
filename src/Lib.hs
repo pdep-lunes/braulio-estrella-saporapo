@@ -17,8 +17,13 @@ restarVida vidaContrincante danioGenerado
     | otherwise = vidaContrincante - danioGenerado
 
 hacerDanio :: Personaje -> Int -> Personaje
-hacerDanio unContrincante danio = unContrincante { 
-    cantidadVida = restarVida (cantidadVida unContrincante) danio 
+hacerDanio unContrincante danio = UnPersonaje {
+    nombre = nombre unContrincante,
+    poderBasico = poderBasico unContrincante,
+    superPoder = superPoder unContrincante,
+    superPoderActivo = superPoderActivo unContrincante,
+    cantidadVida = restarVida (cantidadVida unContrincante) danio,
+    grupo = grupo unContrincante
 }
 
 bolaEspinosa :: Personaje -> Personaje 
