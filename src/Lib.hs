@@ -7,9 +7,14 @@ data Personaje = UnPersonaje {
     poderBasico :: String,
     superPoder :: String,
     superPoderActivo :: Bool,
-    cantidadVida :: Int,
-    grupo :: String
+    cantidadVida :: Int
 } deriving (Show, Eq)
+
+espina :: Personaje
+espina = UnPersonaje "Espina" "bolaEspinosa" "granadaDeEspinas 5" True 4800
+
+pamela :: Personaje
+pamela = UnPersonaje "Pamela" "lluviaDeTuercas Sanadoras" "torretaCurativa" False 9600
 
 restarVida :: Int -> Int -> Int
 restarVida vidaContrincante danioGenerado
@@ -19,46 +24,56 @@ restarVida vidaContrincante danioGenerado
 sumarVida :: Int -> Int -> Int
 sumarVida vidaColega sanacionGenerada = vidaColega + sanacionGenerada
 
-hacerDanio :: Personaje -> Int -> Personaje
-hacerDanio unContrincante danio = UnPersonaje {
+hacerDanio :: Int -> Personaje -> Personaje
+hacerDanio danio unContrincante = UnPersonaje {
     nombre = nombre unContrincante,
     poderBasico = poderBasico unContrincante,
     superPoder = superPoder unContrincante,
     superPoderActivo = superPoderActivo unContrincante,
-    cantidadVida = restarVida (cantidadVida unContrincante) danio,
-    grupo = grupo unContrincante
+    cantidadVida = restarVida (cantidadVida unContrincante) danio
 }
 
-sanarColega :: Personaje -> Int -> Personaje
-sanarColega unColega sanacion = UnPersonaje {
+sanarColega :: Int -> Personaje -> Personaje
+sanarColega sanacion unColega = UnPersonaje {
     nombre = nombre unColega,
     poderBasico = poderBasico unColega,
     superPoder = superPoder unColega,
     superPoderActivo = superPoderActivo unColega,
-    cantidadVida = sumarVida (cantidadVida unColega) sanacion,
-    grupo = grupo unColega
+    cantidadVida = sumarVida (cantidadVida unColega) sanacion
 }
 
-mismoGrupo :: Personaje -> Personaje -> Bool
-mismoGrupo unPersonaje otroPersonaje = grupo unPersonaje == grupo otroPersonaje
+cambiarSuperActivo :: Personaje -> Personaje
+cambiarSuperActivo unColega = UnPersonaje {
+    nombre = nombre unColega,
+    poderBasico = poderBasico unColega,
+    superPoder = superPoder unColega,
+    superPoderActivo = not (superPoderActivo unColega),
+    cantidadVida = cantidadVida unColega
+}
 
-tuercasSanadoras :: Personaje -> Bool
-tuercasSanadoras unPersonaje = superPoder unPersonaje == "lluviaDeTuercas Sanadoras" || poderBasico unPersonaje == "lluviaDeTuercas Sanadoras"
-
-tuercasDaninas :: Personaje -> Bool
-tuercasDaninas unPersonaje = superPoder unPersonaje == "lluviaDeTuercas Daninas" || poderBasico unPersonaje == "lluviaDeTuercas Daninas"
+cambiarNombre :: String -> Personaje -> Personaje
+cambiarNombre agregarEnNombre unContrincante = UnPersonaje {
+    nombre = nombre unContrincante ++ agregarEnNombre,
+    poderBasico = poderBasico unContrincante,
+    superPoder = superPoder unContrincante,
+    superPoderActivo = superPoderActivo unContrincante,
+    cantidadVida = cantidadVida unContrincante
+}
 
 bolaEspinosa :: Personaje -> Personaje 
-bolaEspinosa unContrincante = hacerDanio unContrincante 1000
+bolaEspinosa unContrincante = hacerDanio 1000 unContrincante
 
-lluviaDeTuercas :: Personaje -> Personaje -> Personaje
-lluviaDeTuercas unPersonaje otroPersonaje
-    | tuercasSanadoras unPersonaje && mismoGrupo unPersonaje otroPersonaje = sanarColega otroPersonaje 800
-    | tuercasDaninas unPersonaje && not (mismoGrupo unPersonaje otroPersonaje) = hacerDanio otroPersonaje (cantidadVida otroPersonaje `div` 2)
+torretaCurativa :: Personaje -> Personaje
+torretaCurativa unColega = (cambiarSuperActivo . sanarColega (cantidadVida unColega)) unColega
+
+lluviaDeTuercas :: String -> Personaje -> Personaje
+lluviaDeTuercas unTipoTuercas unPersonaje
+    | unTipoTuercas == "Sanadoras" = sanarColega 800 unPersonaje
+    | unTipoTuercas == "Daninas" = hacerDanio (cantidadVida unPersonaje `div` 2) unPersonaje
     | otherwise = unPersonaje
 
-espina :: Personaje
-espina = UnPersonaje "Espina" "bolaEspinosa" "granadaDeEspinas 5" True 4800 "LosSapos"
-
-pamela :: Personaje
-pamela = UnPersonaje "Pamela" "lluviaDeTuercas Sanadoras" "torretaCurativa" False 9600 "LasRanas"
+granadaDeEspinas :: Int -> Personaje -> Personaje
+granadaDeEspinas radioExplosion unContrincante
+    | (radioExplosion > 3) && (cantidadVida unContrincante < 800) = (cambiarNombre " Espina estuvo aqui" . hacerDanio (cantidadVida unContrincante)) (cambiarSuperActivo unContrincante)
+    | radioExplosion > 3 = (bolaEspinosa . cambiarNombre " Espina estuvo aqui") unContrincante
+    | otherwise = bolaEspinosa unContrincante
