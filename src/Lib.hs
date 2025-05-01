@@ -2,6 +2,8 @@ module Lib () where
 
 import Text.Show.Functions ()
 
+type Poder = (String, String, Int)
+
 data Personaje = UnPersonaje {
     nombre :: String,
     poderBasico :: String,
@@ -74,6 +76,24 @@ lluviaDeTuercas unTipoTuercas unPersonaje
 
 granadaDeEspinas :: Int -> Personaje -> Personaje
 granadaDeEspinas radioExplosion unContrincante
-    | (radioExplosion > 3) && (cantidadVida unContrincante < 800) = (cambiarNombre " Espina estuvo aqui" . hacerDanio (cantidadVida unContrincante)) (cambiarSuperActivo unContrincante)
+    | radioExplosion > 3 && cantidadVida unContrincante < 800 = (cambiarNombre " Espina estuvo aqui" . hacerDanio (cantidadVida unContrincante)) (cambiarSuperActivo unContrincante)
     | radioExplosion > 3 = (bolaEspinosa . cambiarNombre " Espina estuvo aqui") unContrincante
     | otherwise = bolaEspinosa unContrincante
+
+listaPoderes :: [Poder]
+listaPoderes = [("bolaEspinosa", "", 0), ("lluviaDeTuercas", "Sanadoras", 0), ("lluviaDeTuercas", "Daninas", 0), ("torretaCurativa", "", 0), ("granadaDeEspinas", "", 0)]
+
+listaPersonajes :: [Personaje]
+listaPersonajes = [espina, pamela]
+
+nombrePersonaje :: Personaje -> String
+nombrePersonaje unPersonaje = nombre unPersonaje
+
+vidaMenor800 :: Personaje -> Bool
+vidaMenor800 unPersonaje = cantidadVida unPersonaje < 800
+
+personajesEnLasUltimas :: [Personaje] -> [String]
+personajesEnLasUltimas listaPersonajes = (map nombrePersonaje . filter vidaMenor800) listaPersonajes
+
+
+
