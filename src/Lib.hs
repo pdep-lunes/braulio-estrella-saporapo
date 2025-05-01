@@ -2,21 +2,21 @@ module Lib () where
 
 import Text.Show.Functions ()
 
-type Poder = (String, String, Int)
-
 data Personaje = UnPersonaje {
     nombre :: String,
-    poderBasico :: String,
-    superPoder :: String,
+    poderBasico :: Personaje -> Personaje,
+    superPoder :: Personaje -> Personaje,
     superPoderActivo :: Bool,
     cantidadVida :: Int
-} deriving (Show, Eq)
+} deriving (Show)
+-- si los poderes se definen como :: Personaje -> Personaje, puedo utilizar la data
+-- guardada en el personaje como si fuera la funcion misma definida en mi codigo
 
 espina :: Personaje
-espina = UnPersonaje "Espina" "bolaEspinosa" "granadaDeEspinas 5" True 4800
+espina = UnPersonaje "Espina" bolaEspinosa (granadaDeEspinas 5) True 4800
 
 pamela :: Personaje
-pamela = UnPersonaje "Pamela" "lluviaDeTuercas Sanadoras" "torretaCurativa" False 9600
+pamela = UnPersonaje "Pamela" (lluviaDeTuercas "Sanadoras") torretaCurativa False 9600
 
 restarVida :: Int -> Int -> Int
 restarVida vidaContrincante danioGenerado
@@ -80,9 +80,6 @@ granadaDeEspinas radioExplosion unContrincante
     | radioExplosion > 3 = (bolaEspinosa . cambiarNombre " Espina estuvo aqui") unContrincante
     | otherwise = bolaEspinosa unContrincante
 
-listaPoderes :: [Poder]
-listaPoderes = [("bolaEspinosa", "", 0), ("lluviaDeTuercas", "Sanadoras", 0), ("lluviaDeTuercas", "Daninas", 0), ("torretaCurativa", "", 0), ("granadaDeEspinas", "", 0)]
-
 listaPersonajes :: [Personaje]
 listaPersonajes = [espina, pamela]
 
@@ -95,5 +92,7 @@ vidaMenor800 unPersonaje = cantidadVida unPersonaje < 800
 personajesEnLasUltimas :: [Personaje] -> [String]
 personajesEnLasUltimas listaPersonajes = (map nombrePersonaje . filter vidaMenor800) listaPersonajes
 
-
-
+ataqueConPoderEspecial :: Personaje -> Personaje -> Personaje
+ataqueConPoderEspecial unPersonaje unContrincante
+    | superPoderActivo unPersonaje = (superPoder unPersonaje . poderBasico unPersonaje) unContrincante
+    | otherwise = unContrincante
